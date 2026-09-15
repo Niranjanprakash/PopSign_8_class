@@ -48,10 +48,8 @@ def create_app():
     CORS(app, origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://niranjanprakash.github.io",
-        os.environ.get("FRONTEND_URL", ""),   # Vercel URL — set in Render env vars
+        "https://pop-sign-8-class.netlify.app",
+        os.environ.get("FRONTEND_URL", ""),
     ])
     
     # Initialize directory paths
