@@ -18,11 +18,10 @@ export function clearCanvas(canvas) {
  * @param {number} dotRadius
  * @param {number} lineWidth
  */
-function drawLandmarkSet(ctx, landmarks, connections, color, dotRadius = 4, lineWidth = 2) {
+function drawLandmarkSet(ctx, landmarks, connections, color, drawRect, dotRadius = 4, lineWidth = 2) {
   if (!landmarks || landmarks.length === 0) return;
 
-  const w = ctx.canvas.width;
-  const h = ctx.canvas.height;
+  const { x, y, width, height } = drawRect;
 
   // Draw connections
   ctx.strokeStyle = color;
@@ -33,8 +32,8 @@ function drawLandmarkSet(ctx, landmarks, connections, color, dotRadius = 4, line
     const b = landmarks[j];
     if (!a || !b) continue;
     ctx.beginPath();
-    ctx.moveTo(a.x * w, a.y * h);
-    ctx.lineTo(b.x * w, b.y * h);
+    ctx.moveTo(x + a.x * width, y + a.y * height);
+    ctx.lineTo(x + b.x * width, y + b.y * height);
     ctx.stroke();
   }
 
@@ -43,12 +42,12 @@ function drawLandmarkSet(ctx, landmarks, connections, color, dotRadius = 4, line
   for (const lm of landmarks) {
     if (!lm) continue;
     ctx.beginPath();
-    ctx.arc(lm.x * w, lm.y * h, dotRadius, 0, Math.PI * 2);
+    ctx.arc(x + lm.x * width, y + lm.y * height, dotRadius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
     // White center
     ctx.beginPath();
-    ctx.arc(lm.x * w, lm.y * h, dotRadius * 0.4, 0, Math.PI * 2);
+    ctx.arc(x + lm.x * width, y + lm.y * height, dotRadius * 0.4, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.fill();
   }
@@ -61,7 +60,7 @@ function drawLandmarkSet(ctx, landmarks, connections, color, dotRadius = 4, line
  *   leftHand / rightHand: array of {x,y,z} normalized landmarks or null
  *   pose: array of {x,y,z} normalized landmarks or null
  */
-export function drawSkeleton(canvas, result) {
+export function drawSkeleton(canvas, result, contentRect = null) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   clearCanvas(canvas);
@@ -69,20 +68,26 @@ export function drawSkeleton(canvas, result) {
   if (!result) return;
 
   const { leftHand, rightHand, pose } = result;
+  const drawRect = contentRect || {
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
+  };
 
   if (leftHand) {
-    drawLandmarkSet(ctx, leftHand, HAND_CONNECTIONS, SKELETON_COLORS.LEFT_HAND, 4, 2);
+    drawLandmarkSet(ctx, leftHand, HAND_CONNECTIONS, SKELETON_COLORS.LEFT_HAND, drawRect, 4, 2);
   }
 
   if (rightHand) {
-    drawLandmarkSet(ctx, rightHand, HAND_CONNECTIONS, SKELETON_COLORS.RIGHT_HAND, 4, 2);
+    drawLandmarkSet(ctx, rightHand, HAND_CONNECTIONS, SKELETON_COLORS.RIGHT_HAND, drawRect, 4, 2);
   }
 
   if (pose) {
     // Only upper-body joints
     const upperIndices = new Set(POSE_UPPER_CONNECTIONS.flat());
     const upperPose = pose.map((lm, i) => upperIndices.has(i) ? lm : null);
-    drawLandmarkSet(ctx, upperPose, POSE_UPPER_CONNECTIONS, SKELETON_COLORS.POSE, 5, 2.5);
+    drawLandmarkSet(ctx, upperPose, POSE_UPPER_CONNECTIONS, SKELETON_COLORS.POSE, drawRect, 5, 2.5);
   }
 
   ctx.globalAlpha = 1.0;
@@ -100,4 +105,31 @@ export function syncCanvasToVideo(canvas, videoEl) {
     canvas.width  = w;
     canvas.height = h;
   }
+}
+
+/**
+ * Returns the actual visible video rectangle inside a canvas when the video
+ * uses CSS `object-fit: contain`. Portrait videos have left/right black bars;
+ * drawing normalized landmarks against the full wrapper would shift them.
+ */
+export function getContainedVideoRect(canvas, videoEl) {
+  const canvasWidth = canvas?.width || 0;
+  const canvasHeight = canvas?.height || 0;
+  const videoWidth = videoEl?.videoWidth || canvasWidth;
+  const videoHeight = videoEl?.videoHeight || canvasHeight;
+
+  if (!canvasWidth || !canvasHeight || !videoWidth || !videoHeight) {
+    return { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
+  }
+
+  const scale = Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight);
+  const width = videoWidth * scale;
+  const height = videoHeight * scale;
+
+  return {
+    x: (canvasWidth - width) / 2,
+    y: (canvasHeight - height) / 2,
+    width,
+    height,
+  };
 }

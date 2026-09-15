@@ -66,7 +66,7 @@ export default function Home() {
       icon: <IconLayers />,
       value: modelInfo?.num_classes ?? displayClasses.length,
       label: 'ASL Classes',
-      sub: 'Phase 1 — WLASL',
+      sub: 'PopSign 4-class model',
       color: 'var(--accent-blue)',
     },
     {
@@ -94,7 +94,7 @@ export default function Home() {
       icon: <IconActivity />,
       value: 'MediaPipe',
       label: 'Skeleton Tracking',
-      sub: '75 landmarks / frame',
+      sub: 'Holistic landmark tracking',
       color: 'var(--accent-amber)',
     },
   ];
@@ -161,7 +161,7 @@ export default function Home() {
       <div className="glass-card" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <div className="section-label">Phase 1 Dataset</div>
+            <div className="section-label">PopSign Dataset</div>
             <h2 className="section-title" style={{ fontSize: '1.2rem' }}>Supported ASL Signs</h2>
             {!classes && <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>Showing fallback list — backend offline</p>}
           </div>

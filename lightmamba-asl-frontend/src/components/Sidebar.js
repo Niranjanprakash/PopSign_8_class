@@ -51,10 +51,17 @@ const IconBrain = () => (
   </svg>
 );
 
+const IconText = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/>
+  </svg>
+);
+
 const NAV_ITEMS = [
   { to: '/',           label: 'Dashboard',         Icon: IconDashboard },
   { to: '/recognize',  label: 'Video Recognition', Icon: IconVideo },
   { to: '/live',       label: 'Live Recognition',  Icon: IconCamera },
+  { to: '/sentence',   label: 'Sentence Builder',  Icon: IconText },
   { to: '/skeleton',   label: 'Skeleton Tracking', Icon: IconSkeleton },
   { to: '/model',      label: 'Model Architecture',Icon: IconCpu },
   { to: '/results',    label: 'Research Results',  Icon: IconBarChart },

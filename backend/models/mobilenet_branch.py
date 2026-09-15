@@ -20,7 +20,6 @@ class MobileNetBranch(nn.Module):
     def unfreeze_final_blocks(self):
         """Allows end-to-end fine-tuning of the final layers."""
         self.freeze_backbone = False
-        # Unfreeze final 3 layers of MobileNetV3 small features
         for param in self.extractor.features[-3:].parameters():
             param.requires_grad = True
 
@@ -46,5 +45,5 @@ class MobileNetBranch(nn.Module):
             features_flat = self.extractor(x_flat)
             
         # Reshape back to sequence
-        features = features_flat.view(B, T, -1) # [B, T, 576]
+        features = features_flat.view(B, T, -1) # [B, T, 960]
         return features

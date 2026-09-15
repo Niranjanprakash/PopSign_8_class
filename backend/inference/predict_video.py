@@ -4,15 +4,17 @@ import torch
 from pathlib import Path
 from torchvision import transforms
 
-from backend.config import CHECKPOINT_DIR, CLASSES, NUM_FRAMES, IMAGE_SIZE, USE_MOTION
+from backend.config import CHECKPOINT_DIR, NUM_FRAMES, IMAGE_SIZE, USE_MOTION
 from backend.utils import get_device, logger
 from backend.data.video_loader import load_video
 from backend.features.feature_cache import get_or_extract_features
 from backend.models.lightmamba_asl import LightMambaASL
-from backend.inference.confidence import calibrate_prediction
+from backend.services.model_service import get_class_mapping
+from backend.inference.confidence import calibrate_prediction, get_ambiguity_warning
 
 def predict_single_video(video_path: str, checkpoint_path: str = None) -> dict:
     device = get_device()
+    class_mapping = get_class_mapping()
     video_path = Path(video_path)
     
     if not video_path.exists():
@@ -69,16 +71,19 @@ def predict_single_video(video_path: str, checkpoint_path: str = None) -> dict:
     pred_idx, confidence, top_k = calibrate_prediction(logits)
     
     # Format response
-    if pred_idx == -1:
+    ambiguity = get_ambiguity_warning(top_k, class_mapping)
+    if pred_idx == -1 or ambiguity:
         pred_label = "UNCERTAIN"
     else:
-        pred_label = CLASSES[pred_idx]
+        pred_label = class_mapping[pred_idx]
         
     result = {
         "prediction": pred_label,
         "confidence": confidence,
-        "uncertain": (pred_idx == -1),
-        "top_predictions": [{"class": CLASSES[x["class_id"]], "confidence": x["probability"]} for x in top_k]
+        "uncertain": (pred_idx == -1 or ambiguity is not None),
+        "ambiguous": ambiguity is not None,
+        "ambiguity": ambiguity,
+        "top_predictions": [{"class": class_mapping[x["class_id"]], "confidence": x["probability"]} for x in top_k]
     }
     
     return result

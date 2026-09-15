@@ -9,13 +9,22 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Model weights — hosted on HuggingFace, not in repo
 checkpoints/
-outputs/
-uploads/
-dataset/
-.idea/
-.vscode/
 *.pth
 *.pkl
 *.h5
+
+# Large data
+uploads/
+dataset/
+
+# Runtime outputs
+outputs/logs/
+outputs/predictions/
+
+# IDE
+.idea/
+.vscode/
 *.log

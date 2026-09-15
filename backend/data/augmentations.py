@@ -21,15 +21,17 @@ class VideoAugmentation:
                  noise_std: float = 0.03,
                  speed_jitter: bool = True,
                  rotation_range: float = 15.0,
-                 zoom_range: tuple = (0.85, 1.15)):
+                 zoom_range: tuple = (0.85, 1.15),
+                 extra_strong: bool = False):   # True for dog / airplane
         self.use_horizontal_flip = use_horizontal_flip
-        self.brightness_range = brightness_range
-        self.contrast_range = contrast_range
-        self.saturation_range = saturation_range
-        self.noise_std = noise_std
-        self.speed_jitter = speed_jitter
-        self.rotation_range = rotation_range
-        self.zoom_range = zoom_range
+        self.brightness_range = brightness_range if not extra_strong else (0.35, 1.65)
+        self.contrast_range   = contrast_range   if not extra_strong else (0.45, 1.55)
+        self.saturation_range = saturation_range if not extra_strong else (0.5,  1.5)
+        self.noise_std        = noise_std        if not extra_strong else 0.06
+        self.speed_jitter     = speed_jitter
+        self.rotation_range   = rotation_range   if not extra_strong else 22.0
+        self.zoom_range       = zoom_range       if not extra_strong else (0.78, 1.22)
+        self.extra_strong     = extra_strong
 
     def __call__(self, frames: np.ndarray):
         """
@@ -78,8 +80,8 @@ class VideoAugmentation:
 
         result = np.stack(augmented_frames, axis=0)
 
-        if random.random() > 0.5:
-            n_mask = max(1, int(T * 0.2))
+        if random.random() > 0.7:  # less frequent temporal masking
+            n_mask = max(1, int(T * 0.1))  # mask only 10% frames, not 20%
             mask_indices = random.sample(range(T), n_mask)
             result[mask_indices] = 0
 

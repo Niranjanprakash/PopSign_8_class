@@ -19,24 +19,24 @@ class EarlyStopping:
         self.best_path = CHECKPOINT_DIR / "best_model.pth"
         self.last_path = CHECKPOINT_DIR / "last_model.pth"
 
-    def __call__(self, val_loss: float, model: torch.nn.Module, optimizer: torch.optim.Optimizer, epoch: int, metrics: dict, class_mapping: list):
+    def __call__(self, val_loss: float, model: torch.nn.Module, optimizer: torch.optim.Optimizer, epoch: int, metrics: dict, class_mapping: list, split_signature: str = None):
         if self.best_loss is None:
             self.best_loss = val_loss
-            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, is_best=True)
+            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, split_signature, is_best=True)
         elif val_loss > self.best_loss - self.delta:
             self.counter += 1
             if self.verbose:
                 print(f"[EARLY STOPPING] Validation loss did not improve. Counter: {self.counter} / {self.patience}")
             # Save last checkpoint anyway
-            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, is_best=False)
+            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, split_signature, is_best=False)
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
             self.best_loss = val_loss
-            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, is_best=True)
+            self.save_checkpoint(val_loss, model, optimizer, epoch, metrics, class_mapping, split_signature, is_best=True)
             self.counter = 0
 
-    def save_checkpoint(self, val_loss: float, model: torch.nn.Module, optimizer: torch.optim.Optimizer, epoch: int, metrics: dict, class_mapping: list, is_best: bool = False):
+    def save_checkpoint(self, val_loss: float, model: torch.nn.Module, optimizer: torch.optim.Optimizer, epoch: int, metrics: dict, class_mapping: list, split_signature: str = None, is_best: bool = False):
         """Saves a model state dictionary and metadata."""
         checkpoint = {
             "epoch": epoch,
@@ -44,7 +44,8 @@ class EarlyStopping:
             "optimizer_state_dict": optimizer.state_dict(),
             "validation_loss": val_loss,
             "metrics": metrics,
-            "class_mapping": class_mapping
+            "class_mapping": class_mapping,
+            "split_signature": split_signature,
         }
         
         path = self.best_path if is_best else self.last_path

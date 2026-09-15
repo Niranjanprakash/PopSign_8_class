@@ -12,7 +12,7 @@ from backend.features.landmark_normalizer import normalize_landmarks
 from backend.features.motion_features import compute_motion_features
 from backend.models.lightmamba_asl import LightMambaASL
 from backend.inference.temporal_smoothing import TemporalSmoothing
-from backend.inference.confidence import calibrate_prediction
+from backend.inference.confidence import calibrate_prediction, get_ambiguity_warning
 
 _NORMALIZE = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
@@ -25,17 +25,19 @@ def build_model_inputs(frame_buffer, landmark_extractor, device):
     """
     frames_np = np.stack(list(frame_buffer), axis=0)  # [T, H, W, 3]
 
+    # --- Resize all frames to IMAGE_SIZE x IMAGE_SIZE (matches training pipeline) ---
+    resized = np.stack(
+        [cv2.resize(f, (IMAGE_SIZE, IMAGE_SIZE)) for f in frames_np], axis=0
+    )
+
     # --- RGB ---
     rgb_tensors = []
-    for f in frames_np:
+    for f in resized:
         f_t = torch.from_numpy(f).permute(2, 0, 1).float() / 255.0
         rgb_tensors.append(_NORMALIZE(f_t))
     rgb_tensor = torch.stack(rgb_tensors, dim=0).unsqueeze(0).to(device)  # [1, T, 3, H, W]
 
-    # --- Landmarks (same resolution as training: IMAGE_SIZE x IMAGE_SIZE) ---
-    resized = np.stack(
-        [cv2.resize(f, (IMAGE_SIZE, IMAGE_SIZE)) for f in frames_np], axis=0
-    )
+    # --- Landmarks ---
     raw_landmarks, mask = landmark_extractor.extract_video_sequence(resized)
     normalized = normalize_landmarks(raw_landmarks, mask)
     motion = compute_motion_features(normalized, mask)  # mask-aware
@@ -64,6 +66,7 @@ def main():
 
     print("[WEBCAM] Loading model...")
     checkpoint = torch.load(checkpoint_path, map_location=device)
+    class_mapping = checkpoint.get("class_mapping", CLASSES)
     model = LightMambaASL(pretrained=False, freeze_backbone=False).to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
@@ -107,8 +110,9 @@ def main():
                     logits = model(rgb_t, lm_t, mask_t)
                 probs = torch.softmax(logits, dim=-1).squeeze(0).cpu().numpy()
                 smoothed = smoothing.update(probs)
-                pred_idx, confidence, _ = calibrate_prediction(torch.tensor(smoothed).unsqueeze(0))
-                pred_label = "UNCERTAIN" if pred_idx == -1 else CLASSES[pred_idx]
+                pred_idx, confidence, top_k = calibrate_prediction(torch.tensor(smoothed).unsqueeze(0))
+                ambiguity = get_ambiguity_warning(top_k, class_mapping)
+                pred_label = "UNCERTAIN" if pred_idx == -1 or ambiguity else class_mapping[pred_idx]
             except Exception as e:
                 logger.warning(f"[WEBCAM] Inference error: {e}")
             latency_ms = (time.time() - inf_start) * 1000

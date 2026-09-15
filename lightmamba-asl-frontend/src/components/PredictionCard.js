@@ -23,7 +23,7 @@ export function ConfidenceBar({ confidence }) {
 
 export function PredictionCard({ result }) {
   if (!result) return null;
-  const { prediction, confidence, uncertain, top_predictions, processing_time_ms } = result;
+  const { prediction, confidence, uncertain, ambiguous, ambiguity, top_predictions, processing_time_ms } = result;
 
   return (
     <div className="prediction-result-card">
@@ -32,7 +32,11 @@ export function PredictionCard({ result }) {
         {prediction?.toUpperCase()}
       </div>
 
-      {uncertain && (
+      {ambiguous ? (
+        <p style={{ fontSize: '0.82rem', color: 'var(--accent-amber)', marginBottom: '12px', lineHeight: 1.55 }}>
+          Possible signs: <strong>{ambiguity?.labels?.join(' / ')}</strong>. {ambiguity?.message}
+        </p>
+      ) : uncertain && (
         <p style={{ fontSize: '0.82rem', color: 'var(--accent-amber)', marginBottom: '12px' }}>
           ⚠️ Low confidence — result may not be accurate.
         </p>

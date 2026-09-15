@@ -1,11 +1,9 @@
-from backend.config import PROJECT_ROOT, DATASET_ROOT, VIDEO_DIR, METADATA_DIR, PROCESSED_DIR, CHECKPOINT_DIR, OUTPUT_DIR, UPLOAD_DIR
+from backend.config import PROJECT_ROOT, DATASET_ROOT, PROCESSED_DIR, CHECKPOINT_DIR, OUTPUT_DIR, UPLOAD_DIR
 
 def verify_paths():
     """Checks and creates all required directories if not present."""
     directories = [
         DATASET_ROOT,
-        VIDEO_DIR,
-        METADATA_DIR,
         PROCESSED_DIR,
         PROCESSED_DIR / "splits",
         PROCESSED_DIR / "landmarks",

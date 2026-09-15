@@ -14,7 +14,7 @@ const NOVELTIES = [
     num: '02',
     title: 'RGB-Skeletal Multimodal Learning',
     color: 'var(--accent-purple)',
-    desc: 'MobileNetV3-Small provides lightweight visual appearance features while MediaPipe landmarks provide explicit geometric information. The two modalities are fused to form a complementary representation.',
+    desc: 'MobileNetV3-Large provides visual appearance features while MediaPipe Holistic landmarks provide explicit geometric information. The two modalities are fused to form a complementary representation.',
   },
   {
     num: '03',
@@ -56,7 +56,7 @@ const NOVELTIES = [
     num: '09',
     title: 'Edge-Oriented Lightweight Architecture',
     color: 'var(--accent-green)',
-    desc: 'MobileNetV3-Small and efficient SSM-based temporal modelling are selected with deployment efficiency in mind, targeting real-time inference on resource-constrained devices.',
+    desc: 'MobileNetV3-Large and efficient temporal modelling are combined for practical real-time inference on supported hardware.',
   },
 ];
 
@@ -101,7 +101,7 @@ export default function About() {
           <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '800px' }}>
             LightMamba-ASL is a lightweight multimodal video recognition framework for dynamic American Sign Language
             word recognition. Unlike static image-based approaches, the system analyzes complete temporal gesture
-            sequences. RGB appearance features extracted using MobileNetV3-Small are combined with MediaPipe skeletal
+            sequences. RGB appearance features extracted using MobileNetV3-Large are combined with MediaPipe skeletal
             landmarks and explicit temporal motion features. The fused sequence is processed by Hierarchical Multi-Scale
             Mamba to learn fine, intermediate, and global gesture patterns before producing a video-level ASL word prediction.
           </p>
@@ -192,12 +192,12 @@ export default function About() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
             {[
               { label: 'PyTorch',          sub: 'Deep learning framework',    color: 'var(--accent-red)' },
-              { label: 'MobileNetV3-Small',sub: 'RGB feature extraction',     color: 'var(--accent-blue)' },
+              { label: 'MobileNetV3-Large',sub: 'RGB feature extraction',     color: 'var(--accent-blue)' },
               { label: 'MediaPipe',        sub: 'Landmark detection',         color: 'var(--accent-green)' },
               { label: 'Mamba / SSM',      sub: 'Temporal sequence model',    color: 'var(--accent-purple)' },
               { label: 'Flask',            sub: 'REST API backend',           color: 'var(--accent-cyan)' },
               { label: 'React CRA',        sub: 'Frontend interface',         color: 'var(--accent-amber)' },
-              { label: 'WLASL Dataset',    sub: 'Word-level ASL videos',      color: 'var(--accent-blue)' },
+              { label: 'PopSign Dataset',  sub: '4 supported ASL signs',      color: 'var(--accent-blue)' },
               { label: 'OpenCV',           sub: 'Video decoding',             color: 'var(--accent-green)' },
             ].map(({ label, sub, color }) => (
               <div key={label} style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: `${color}08`, border: `1px solid ${color}20` }}>

@@ -24,9 +24,10 @@ def validate_epoch(model: nn.Module, dataloader: DataLoader, loss_fn: nn.Module,
             landmarks = batch["landmarks"].to(device)
             mask = batch["mask"].to(device)
             targets = batch["label"].to(device)
-            
+            preextracted = (rgb.dim() == 3)
+
             # Forward pass
-            logits = model(rgb, landmarks, mask)
+            logits = model(rgb, landmarks, mask, preextracted_rgb=preextracted)
             loss = loss_fn(logits, targets)
             
             total_loss += loss.item() * targets.size(0)

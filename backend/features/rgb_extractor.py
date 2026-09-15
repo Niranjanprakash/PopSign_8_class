@@ -1,39 +1,34 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from torchvision.models import MobileNet_V3_Small_Weights
+from torchvision.models import MobileNet_V3_Large_Weights
 import numpy as np
 from pathlib import Path
 from backend.config import PROCESSED_DIR, RGB_FEATURE_DIM
 
 class MobileNetV3FeatureExtractor(nn.Module):
     """
-    Wraps MobileNetV3-Small to extract frame-level spatial appearance features.
+    Wraps MobileNetV3-Large to extract frame-level spatial appearance features.
     If frozen, can be used for feature extraction/caching.
     If fine-tuned, runs end-to-end as part of the model.
     """
     def __init__(self, pretrained: bool = True):
         super().__init__()
-        weights = MobileNet_V3_Small_Weights.DEFAULT if pretrained else None
-        # Load the base model
-        self.mobilenet = models.mobilenet_v3_small(weights=weights)
-        
-        # We want the features part and the global pooling.
-        # MobileNetV3-Small has:
-        # self.mobilenet.features -> outputs shape [B, 576, 7, 7]
-        # self.mobilenet.avgpool -> AdaptiveAvgPool2d(1) -> [B, 576, 1, 1]
-        # We drop the classifier head
+        weights = MobileNet_V3_Large_Weights.DEFAULT if pretrained else None
+        self.mobilenet = models.mobilenet_v3_large(weights=weights)
+
+        # MobileNetV3-Large: features -> [B, 960, 7, 7]
         self.features = self.mobilenet.features
         self.pool = nn.AdaptiveAvgPool2d(1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         x shape: [Batch * T, C, H, W]
-        Returns: [Batch * T, 576]
+        Returns: [Batch * T, 960]
         """
         feats = self.features(x)
         pooled = self.pool(feats)
-        # Flatten to 576-dim
+        # Flatten to 960-dim
         flat = torch.flatten(pooled, 1)
         return flat
 

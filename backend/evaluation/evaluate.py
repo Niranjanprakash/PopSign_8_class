@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 
-from backend.config import PROCESSED_DIR, OUTPUT_DIR, CLASSES
+from backend.config import PROCESSED_DIR, OUTPUT_DIR, CHECKPOINT_DIR, CLASSES
 from backend.utils import get_device, logger
 from backend.data.dataset import ASLVideoDataset
 from backend.models.lightmamba_asl import LightMambaASL
@@ -18,7 +18,7 @@ def main():
     device = get_device()
     
     test_csv = PROCESSED_DIR / "splits" / "test.csv"
-    checkpoint_path = Path("checkpoints/best_model.pth")
+    checkpoint_path = CHECKPOINT_DIR / "best_model.pth"
     
     if not test_csv.exists():
         logger.error("Test split file not found! Please run: python -m backend.data.prepare_dataset")
@@ -30,6 +30,12 @@ def main():
         
     logger.info(f"Loading best checkpoint from {checkpoint_path}...")
     checkpoint = torch.load(checkpoint_path, map_location=device)
+    if not checkpoint.get("split_signature"):
+        raise ValueError(
+            "Refusing to evaluate an unverified checkpoint without split_signature. "
+            "Retrain with the current leakage-safe pipeline first."
+        )
+    class_mapping = checkpoint.get("class_mapping", CLASSES)
     
     # Instantiate Model
     model = LightMambaASL(pretrained=False, freeze_backbone=False).to(device)
@@ -53,7 +59,8 @@ def main():
             mask = batch["mask"].to(device)
             targets = batch["label"].to(device)
             
-            logits = model(rgb, landmarks, mask)
+            preextracted = (rgb.dim() == 3)
+            logits = model(rgb, landmarks, mask, preextracted_rgb=preextracted)
             
             all_logits.append(logits)
             all_targets.append(targets)
@@ -70,7 +77,7 @@ def main():
     targets_np = all_targets.cpu().numpy()
     
     per_class_acc = {}
-    for i, cls in enumerate(CLASSES):
+    for i, cls in enumerate(class_mapping):
         cls_indices = np.where(targets_np == i)[0]
         if len(cls_indices) > 0:
             cls_acc = np.mean(preds[cls_indices] == targets_np[cls_indices])
@@ -113,9 +120,9 @@ def main():
     pred_df = pd.DataFrame({
         "video_id": video_ids,
         "true_label_id": targets_np,
-        "true_label": [CLASSES[t] for t in targets_np],
+        "true_label": [class_mapping[t] for t in targets_np],
         "pred_label_id": preds,
-        "pred_label": [CLASSES[p] for p in preds]
+        "pred_label": [class_mapping[p] for p in preds]
     })
     pred_df.to_csv(predictions_dir / "test_predictions.csv", index=False)
     

@@ -5,8 +5,7 @@ import {
 } from 'recharts';
 import PageHeader from '../components/PageHeader';
 import LoadingSpinner from '../components/LoadingSpinner';
-
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000';
+import { API_BASE_URL } from '../services/api';
 
 /* ── Helpers ───────────────────────────────────────────── */
 function MetricBox({ label, value, color = 'var(--accent-blue)' }) {
@@ -52,8 +51,8 @@ export default function Results() {
     async function load() {
       try {
         const [hRes, mRes] = await Promise.allSettled([
-          fetch(`${API_BASE}/outputs/metrics/training_history.json`).then((r) => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${API_BASE}/outputs/metrics/test_metrics.json`).then((r) => r.ok ? r.json() : null).catch(() => null),
+          fetch(`${API_BASE_URL}/outputs/metrics/training_history.json`).then((r) => r.ok ? r.json() : null).catch(() => null),
+          fetch(`${API_BASE_URL}/outputs/metrics/test_metrics.json`).then((r) => r.ok ? r.json() : null).catch(() => null),
         ]);
         // Try local static files as fallback
         if (hRes.status === 'fulfilled' && hRes.value) setHistory(hRes.value);
@@ -188,7 +187,7 @@ export default function Results() {
             <div className="section-label" style={{ marginBottom: '16px' }}>Confusion Matrix</div>
             <div style={{ textAlign: 'center' }}>
               <img
-                src={`${API_BASE}/outputs/confusion_matrix/confusion_matrix.png`}
+                src={`${API_BASE_URL}/outputs/confusion_matrix/confusion_matrix.png`}
                 alt="Confusion Matrix"
                 style={{ maxWidth: '100%', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-card)' }}
                 onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}

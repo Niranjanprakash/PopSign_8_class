@@ -1,15 +1,17 @@
 flask>=3.0.0
 flask-cors>=4.0.0
+gunicorn>=21.2.0
 numpy>=1.24.0,<2.0.0
 pandas>=2.0.0
 scikit-learn>=1.2.0
 matplotlib>=3.7.0
 tqdm>=4.65.0
 Pillow>=9.5.0
-opencv-python>=4.7.0
+opencv-python-headless>=4.7.0
 mediapipe>=0.10.0
 torch>=2.1.0
 torchvision>=0.16.0
+pytest>=7.0.0
 # Note: Native mamba-ssm and causal-conv1d usually require Linux or complex WSL/MSVC setup on Windows.
 # We will provide a clean PyTorch fallback implementation for Windows out-of-the-box.
 # if native mamba is needed:

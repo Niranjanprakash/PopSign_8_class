@@ -1,8 +1,7 @@
 // Fallback class list — used only when backend is unreachable.
 // Primary source is always GET /api/classes
 export const FALLBACK_CLASSES = [
-  'book', 'drink', 'computer', 'before', 'chair',
-  'go', 'clothes', 'who', 'candy', 'cousin'
+  'after', 'airplane', 'bird', 'cloud', 'cry', 'dog', 'drink', 'elephant'
 ];
 
 export const MAX_FILE_SIZE_MB = 100;

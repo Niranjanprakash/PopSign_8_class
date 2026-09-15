@@ -10,8 +10,8 @@ from backend.features.motion_features import compute_motion_features
 
 _extractor = None
 
-# Config fingerprint: cache is invalidated when NUM_FRAMES or IMAGE_SIZE changes
-_CONFIG_TAG = f"f{NUM_FRAMES}_s{IMAGE_SIZE}"
+# Config fingerprint: cache is invalidated when preprocessing or extractor version changes.
+_CONFIG_TAG = f"v3_f{NUM_FRAMES}_s{IMAGE_SIZE}_holistic"
 _SAFE_ID_RE = re.compile(r'[^A-Za-z0-9_\-]')
 
 def _safe_video_id(video_id: str) -> str:

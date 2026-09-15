@@ -3,6 +3,7 @@ import PageHeader    from '../components/PageHeader';
 import VideoUploader from '../components/VideoUploader';
 import VideoSkeletonPlayer from '../components/VideoSkeletonPlayer';
 import { PredictionCard } from '../components/PredictionCard';
+import ConfidenceGraph from '../components/ConfidenceGraph';
 import ErrorMessage  from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { predictVideo } from '../services/api';
@@ -162,6 +163,8 @@ export default function VideoRecognition() {
 
             {/* Prediction result */}
             {result && <PredictionCard result={result} />}
+            {/* Confidence graph */}
+            <ConfidenceGraph predictions={result?.top_predictions ?? []} />
 
             {/* Idle hint */}
             {!loading && !result && !error && (

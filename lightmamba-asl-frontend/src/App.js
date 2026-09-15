@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 import Sidebar from './components/Sidebar';
@@ -9,6 +9,7 @@ import Footer  from './components/Footer';
 import Home             from './pages/Home';
 import VideoRecognition from './pages/VideoRecognition';
 import LiveRecognition  from './pages/LiveRecognition';
+import SentenceBuilder  from './pages/SentenceBuilder';
 import SkeletonDemo     from './pages/SkeletonDemo';
 import ModelInfo        from './pages/ModelInfo';
 import Results          from './pages/Results';
@@ -18,7 +19,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="app-shell">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/"          element={<Home />} />
               <Route path="/recognize" element={<VideoRecognition />} />
               <Route path="/live"      element={<LiveRecognition />} />
+              <Route path="/sentence"  element={<SentenceBuilder />} />
               <Route path="/skeleton"  element={<SkeletonDemo />} />
               <Route path="/model"     element={<ModelInfo />} />
               <Route path="/results"   element={<Results />} />
@@ -40,6 +42,6 @@ export default function App() {
           <Footer />
         </div>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

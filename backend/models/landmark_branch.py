@@ -24,10 +24,14 @@ class LandmarkBranch(nn.Module):
                 input_dim = base_dim + base_dim
 
         self.net = nn.Sequential(
-            nn.Linear(input_dim, embed_dim),
-            nn.LayerNorm(embed_dim),
+            nn.Linear(input_dim, embed_dim * 2),
+            nn.LayerNorm(embed_dim * 2),
             nn.GELU(),
             nn.Dropout(dropout),
+            nn.Linear(embed_dim * 2, embed_dim),
+            nn.LayerNorm(embed_dim),
+            nn.GELU(),
+            nn.Dropout(dropout * 0.5),
             nn.Linear(embed_dim, embed_dim),
             nn.LayerNorm(embed_dim)
         )

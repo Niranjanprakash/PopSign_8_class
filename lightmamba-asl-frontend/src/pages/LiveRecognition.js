@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import PageHeader     from '../components/PageHeader';
 import { LandmarkStatus, SkeletonLegend } from '../components/LandmarkStatus';
 import { PredictionCard } from '../components/PredictionCard';
+import ConfidenceGraph from '../components/ConfidenceGraph';
 import ErrorMessage   from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useCamera }  from '../hooks/useCamera';
@@ -117,18 +118,11 @@ export default function LiveRecognition() {
 
   async function handleAnalyze() {
     if (!recordedBlob) return;
-    const isMP4 = recordedMime.includes('mp4');
-    if (!isMP4) {
-      setError(
-        `Recorded format is ${recordedMime} (WebM). The current backend accepts only .mp4. ` +
-        'Use the Video Upload page with an MP4 file instead.'
-      );
-      return;
-    }
     setAnalyzing(true);
     setError(null);
     try {
-      const file = new File([recordedBlob], 'gesture.mp4', { type: 'video/mp4' });
+      const ext  = recordedMime.includes('mp4') ? 'mp4' : 'webm';
+      const file = new File([recordedBlob], `gesture.${ext}`, { type: recordedMime });
       const data = await predictVideo(file);
       if (data.success === false) setError(data.error || 'Prediction failed.');
       else setResult(data);
@@ -270,6 +264,7 @@ export default function LiveRecognition() {
           <SkeletonLegend />
 
           {result && <PredictionCard result={result} />}
+          <ConfidenceGraph predictions={result?.top_predictions ?? []} isLive />
 
           {!result && (
             <div className="glass-card" style={{ padding: '16px' }}>

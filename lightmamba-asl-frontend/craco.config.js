@@ -34,9 +34,17 @@ module.exports = {
         {
           test: /vision_bundle\.mjs$/,
           include: mediapipePath,
+          type: 'javascript/auto',
           resolve: { fullySpecified: false },
         },
       ];
+
+      // Fix dynamic import() in mediapipe for production build
+      webpackConfig.output = webpackConfig.output || {};
+      webpackConfig.output.environment = {
+        ...webpackConfig.output.environment,
+        dynamicImport: true,
+      };
 
       // Suppress source-map-loader from processing node_modules at all
       webpackConfig.module.rules = webpackConfig.module.rules.map((rule) => {
@@ -58,5 +66,8 @@ module.exports = {
 
       return webpackConfig;
     },
+  },
+  devServer: {
+    allowedHosts: 'all',
   },
 };

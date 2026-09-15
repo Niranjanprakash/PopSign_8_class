@@ -2,6 +2,7 @@
   "name": "lightmamba-asl-frontend",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://Niranjanprakash.github.io/ASL_Sign_Lightmamba",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@mediapipe/tasks-vision": "0.10.14",
@@ -18,7 +19,9 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "browserslist": {
     "production": [
@@ -32,7 +35,9 @@
       "last 1 safari version"
     ]
   },
+  "proxy": "http://127.0.0.1:5000",
   "devDependencies": {
-    "eslint-plugin-jest": "^29.16.0"
+    "eslint-plugin-jest": "^29.16.0",
+    "gh-pages": "^6.3.0"
   }
 }
