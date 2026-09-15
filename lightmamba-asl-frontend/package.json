@@ -2,7 +2,7 @@
   "name": "lightmamba-asl-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://Niranjanprakash.github.io/ASL_Sign_Lightmamba",
+  "homepage": "/",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@mediapipe/tasks-vision": "0.10.14",
